@@ -42,4 +42,44 @@ server.post('/api/posts', (req,res) => {
     }
 })
 
+// Returns the post object with the specified id
+server.get('/api/posts/:id', (req,res) => {
+    const id = req.params.id;
+    db.findById(id)
+    .then((response) => {
+        if (response.length >0){
+            res.status(200).json(response)
+        }
+        else {
+            res.status(404).json({message: "The post with the specified id does not exist"})
+        }
+    })
+    .catch((error) => {
+        res.status(500).json({error: "The post information could not be retrieved"})
+    })
+})
+
+// Updates the post with the specified id using info from request body
+// returns modified document
+server.put('/api/posts/:id', (req,res) => {
+    const id = req.params.id;
+    const updatedPost = req.body;
+    if(updatedPost.title && updatedPost.contents) {
+        db.findById(id)
+        .then((response) => {
+            if(response.length ===0){
+                res.status(404).json({message: "The post with the specified id does not exist"})
+            }
+        })
+        .catch((error) => {
+            res.status(500).json({error: "The post could not be modified"})
+        })
+    }
+    else {
+        res.status(400).json({errorMessage: "Please provide a title and contents for the post"})
+    }
+})
+
+
+
 module.exports = server;
