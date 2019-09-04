@@ -80,6 +80,29 @@ server.put('/api/posts/:id', (req,res) => {
     }
 })
 
+// Removes post with specified id and returns deleted object
+server.delete('/api/posts/:id', (req,res) => {
+    const id = req.params.id;
+    db.findById(id)
+    .then((response) => {
+        if(response.length > 0) {
+            res.status(404).json({message: "The post with the specified id does not exist"})
+        }
+        return response;
+    })
+    .then((response) => {
+        db.remove(id)
+        .then(()=> {
+            res.status(200).json(response)
+        })
+        .catch((error) => {
+            res.status(500).json({error: "The post could not be removed"})
+        })
+    })
+    .catch((error) => {
+        res.status(500).json({message: "There was an error finding that post"})
+    })
+})
 
 
 module.exports = server;
