@@ -1,15 +1,6 @@
-const http = require('http');
+const server = require('./server')
 
-const hostname = '127.0.0.1';
-const port = 3000;
+const port = 8000;
 
-const server = http.createServer((req,res) => {
-    res.statusCode = 200;
-    res.setHeader("Content-Type", 'text/plain');
-    res.end('Hello World, from NodeJS');
-});
-
-server.listen(port,hostname,() => {
-    console.log(`server listening on http://${hostname}:${port}`)
-});
+server.listen(port, () => console.log(`Webapi-ii-challenge listening on port ${port}`));
 
