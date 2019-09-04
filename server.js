@@ -104,5 +104,62 @@ server.delete('/api/posts/:id', (req,res) => {
     })
 })
 
+// Returns an array of all the comment objects associated with the post with the specified id
+server.get('/api/posts/:id/comments', (req,res) => {
+    const id = req.params.id;
+    db.findById(id)
+    .then((response) => {
+        if (response.length === 0) {
+            res.status(404).json({message: "The post with the specified id does not exist"})
+        }
+        return response
+    })
+    .then(
+        db.findPostComments(id)
+        .then((response) => {
+            if (response.length > 0) {
+                res.status(200).json(response);
+            }
+            else {
+                res.status(404).json({message: "No comments found for this post"})
+            }
+        })
+        .catch((error) => {
+            res.status(500).json({error: "The comments info could not be retrieved"})
+        })
+    )
+})
+
+// Creates a comment for the post with the specified id using the information sent in the request body
+server.post('/api/posts/:id/comments', (req,res) => {
+    const id = req.params.id;
+    const newComment = req.body;
+    if(req.body.text) {
+        db.findById(id)
+        .then((response) => {
+            if (response.length === 0) {
+                res.status(404).json({message: "The post with the specified id does not exist"})
+            }
+            return response;
+        })
+        .then(
+            db.insertComment(newComment) 
+            .then((idObj) => {
+                db.findCommentById(idObj.id)
+                .then(reponse => {
+                    res.status(201).json(response)
+                })
+                .catch((error) => {
+                    res.status(500).json({message: "Error getting new comment"})
+                })
+            })
+            .catch((error) => {
+                res.status(500).json({error: "There was an error while saving the comment to the database"})
+            })
+        )
+    } else {
+        res.status(400).json({errorMessage: "Please provide text for the comment"})
+    }
+})
 
 module.exports = server;
